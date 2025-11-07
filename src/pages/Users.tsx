@@ -7,25 +7,25 @@ import { Shield, UserCog, User, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 const users = [
-  { id: 1, name: "María González", email: "maria@finansmart.mx", role: "Administrator", status: "Active", lastLogin: "2025-01-15 14:30" },
-  { id: 2, name: "Carlos Ruiz", email: "carlos@finansmart.mx", role: "Editor", status: "Active", lastLogin: "2025-01-15 09:15" },
-  { id: 3, name: "Ana López", email: "ana@finansmart.mx", role: "Author", status: "Active", lastLogin: "2025-01-14 16:45" },
-  { id: 4, name: "Juan Pérez", email: "juan@finansmart.mx", role: "Analyst", status: "Active", lastLogin: "2025-01-15 11:20" },
-  { id: 5, name: "Sofia Martínez", email: "sofia@finansmart.mx", role: "Editor", status: "Inactive", lastLogin: "2024-12-20 10:30" },
+  { id: 1, name: "María González", email: "maria@finansmart.mx", role: "Administrador", status: "Activo", lastLogin: "2025-01-15 14:30" },
+  { id: 2, name: "Carlos Ruiz", email: "carlos@finansmart.mx", role: "Editor", status: "Activo", lastLogin: "2025-01-15 09:15" },
+  { id: 3, name: "Ana López", email: "ana@finansmart.mx", role: "Autor", status: "Activo", lastLogin: "2025-01-14 16:45" },
+  { id: 4, name: "Juan Pérez", email: "juan@finansmart.mx", role: "Analista", status: "Activo", lastLogin: "2025-01-15 11:20" },
+  { id: 5, name: "Sofia Martínez", email: "sofia@finansmart.mx", role: "Editor", status: "Inactivo", lastLogin: "2024-12-20 10:30" },
 ];
 
 const roleIcons: Record<string, any> = {
-  "Administrator": Shield,
+  "Administrador": Shield,
   "Editor": UserCog,
-  "Author": User,
-  "Analyst": User,
+  "Autor": User,
+  "Analista": User,
 };
 
 const roleColors: Record<string, string> = {
-  "Administrator": "bg-primary text-primary-foreground",
+  "Administrador": "bg-primary text-primary-foreground",
   "Editor": "bg-secondary text-secondary-foreground",
-  "Author": "bg-muted text-muted-foreground",
-  "Analyst": "bg-info/20 text-info border-info",
+  "Autor": "bg-muted text-muted-foreground",
+  "Analista": "bg-info/20 text-info border-info",
 };
 
 const Users = () => {
@@ -37,19 +37,19 @@ const Users = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold text-foreground">User Management</h1>
-          <p className="text-muted-foreground mt-1">Manage team members and permissions</p>
+          <h1 className="text-3xl font-semibold text-foreground">Gestión de Usuarios</h1>
+          <p className="text-muted-foreground mt-1">Administrar miembros del equipo y permisos</p>
         </div>
-        <Button className="gap-2" onClick={() => toast.success("Add user modal would open here")}>
+        <Button className="gap-2" onClick={() => toast.success("Modal para agregar usuario se abriría aquí")}>
           <Plus className="h-4 w-4" />
-          Add User
+          Agregar Usuario
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total de Usuarios</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">5</div>
@@ -57,7 +57,7 @@ const Users = () => {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Activos</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">4</div>
@@ -65,7 +65,7 @@ const Users = () => {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Administrators</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Administradores</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1</div>
@@ -73,7 +73,7 @@ const Users = () => {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Editors</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Editores</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">2</div>
@@ -83,20 +83,20 @@ const Users = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Team Members</CardTitle>
-          <CardDescription>Manage user accounts and role assignments</CardDescription>
+          <CardTitle>Miembros del Equipo</CardTitle>
+          <CardDescription>Gestionar cuentas de usuario y asignación de roles</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Last Login</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>Usuario</TableHead>
+                  <TableHead>Correo</TableHead>
+                  <TableHead>Rol</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Último Acceso</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -122,7 +122,7 @@ const Users = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={user.status === "Active" ? "default" : "secondary"}>
+                        <Badge variant={user.status === "Activo" ? "default" : "secondary"}>
                           {user.status}
                         </Badge>
                       </TableCell>
@@ -131,9 +131,9 @@ const Users = () => {
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => toast.success(`Editing ${user.name}`)}
+                          onClick={() => toast.success(`Editando ${user.name}`)}
                         >
-                          Edit
+                          Editar
                         </Button>
                       </TableCell>
                     </TableRow>

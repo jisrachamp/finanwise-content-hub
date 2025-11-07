@@ -21,11 +21,11 @@ export function TopNav() {
 
   const toggleTheme = () => {
     document.documentElement.classList.toggle("dark");
-    toast.success(isDark ? "Light mode enabled" : "Dark mode enabled");
+    toast.success(isDark ? "Modo claro activado" : "Modo oscuro activado");
   };
 
   const handleLogout = () => {
-    toast.success("Logged out successfully");
+    toast.success("Sesión cerrada exitosamente");
     navigate("/");
   };
 
@@ -37,7 +37,7 @@ export function TopNav() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search content, users..."
+            placeholder="Buscar contenido, usuarios..."
             className="pl-10"
           />
         </div>
@@ -58,24 +58,24 @@ export function TopNav() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+            <DropdownMenuLabel>Notificaciones</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium">Content pending review</p>
-                <p className="text-xs text-muted-foreground">5 articles awaiting approval</p>
+                <p className="text-sm font-medium">Contenido pendiente de revisión</p>
+                <p className="text-xs text-muted-foreground">5 artículos esperando aprobación</p>
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium">New user registrations</p>
-                <p className="text-xs text-muted-foreground">142 new users this week</p>
+                <p className="text-sm font-medium">Nuevos registros de usuarios</p>
+                <p className="text-xs text-muted-foreground">142 nuevos usuarios esta semana</p>
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium">System update available</p>
-                <p className="text-xs text-muted-foreground">Version 2.4.1 ready to install</p>
+                <p className="text-sm font-medium">Actualización de sistema disponible</p>
+                <p className="text-xs text-muted-foreground">Versión 2.4.1 lista para instalar</p>
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -92,17 +92,17 @@ export function TopNav() {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span>Admin User</span>
+                <span>Usuario Admin</span>
                 <span className="text-xs font-normal text-muted-foreground">admin@finansmart.mx</span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile Settings</DropdownMenuItem>
-            <DropdownMenuItem>Preferences</DropdownMenuItem>
+            <DropdownMenuItem>Configuración de Perfil</DropdownMenuItem>
+            <DropdownMenuItem>Preferencias</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-destructive">
               <LogOut className="mr-2 h-4 w-4" />
-              Logout
+              Cerrar Sesión
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

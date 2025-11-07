@@ -15,11 +15,11 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Content", url: "/content", icon: FileText },
-  { title: "Users", url: "/users", icon: Users },
-  { title: "Analytics", url: "/analytics", icon: BarChart3 },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Panel", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Contenido", url: "/content", icon: FileText },
+  { title: "Usuarios", url: "/users", icon: Users },
+  { title: "Analíticas", url: "/analytics", icon: BarChart3 },
+  { title: "Configuración", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -44,7 +44,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
+          <SidebarGroupLabel>Plataforma</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => {

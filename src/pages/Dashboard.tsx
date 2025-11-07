@@ -15,20 +15,20 @@ const userGrowthData = [
 ];
 
 const engagementData = [
-  { name: "Credit Simulator", value: 35 },
-  { name: "Savings Calculator", value: 28 },
-  { name: "CETES Info", value: 18 },
-  { name: "Budget Planner", value: 12 },
-  { name: "Investment Guide", value: 7 },
+  { name: "Simulador de Crédito", value: 35 },
+  { name: "Calculadora de Ahorro", value: 28 },
+  { name: "Info CETES", value: 18 },
+  { name: "Planificador de Presupuesto", value: 12 },
+  { name: "Guía de Inversión", value: 7 },
 ];
 
 const transactionData = [
-  { category: "Housing", amount: 45000 },
-  { category: "Food", amount: 28000 },
-  { category: "Transport", amount: 15000 },
-  { category: "Entertainment", amount: 12000 },
-  { category: "Savings", amount: 35000 },
-  { category: "Other", amount: 8000 },
+  { category: "Vivienda", amount: 45000 },
+  { category: "Alimentación", amount: 28000 },
+  { category: "Transporte", amount: 15000 },
+  { category: "Entretenimiento", amount: 12000 },
+  { category: "Ahorros", amount: 35000 },
+  { category: "Otros", amount: 8000 },
 ];
 
 const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
@@ -38,64 +38,64 @@ const Dashboard = () => {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-semibold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Real-time analytics and system overview</p>
+        <h1 className="text-3xl font-semibold text-foreground">Panel Principal</h1>
+        <p className="text-muted-foreground mt-1">Analíticas en tiempo real y vista general del sistema</p>
       </div>
 
       {/* KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+            <CardTitle className="text-sm font-medium">Usuarios Activos</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">3,850</div>
             <div className="flex items-center text-xs text-success mt-1">
               <ArrowUp className="h-3 w-3 mr-1" />
-              <span>+12.5% from last month</span>
+              <span>+12.5% respecto al mes anterior</span>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Content Published</CardTitle>
+            <CardTitle className="text-sm font-medium">Contenido Publicado</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">142</div>
             <div className="flex items-center text-xs text-success mt-1">
               <ArrowUp className="h-3 w-3 mr-1" />
-              <span>+8 this week</span>
+              <span>+8 esta semana</span>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Session</CardTitle>
+            <CardTitle className="text-sm font-medium">Sesión Promedio</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">8.2 min</div>
             <div className="flex items-center text-xs text-destructive mt-1">
               <ArrowDown className="h-3 w-3 mr-1" />
-              <span>-0.3 min from last week</span>
+              <span>-0.3 min desde la semana pasada</span>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">User Retention</CardTitle>
+            <CardTitle className="text-sm font-medium">Retención de Usuarios</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">68%</div>
             <div className="flex items-center text-xs text-success mt-1">
               <ArrowUp className="h-3 w-3 mr-1" />
-              <span>+5% from last month</span>
+              <span>+5% respecto al mes anterior</span>
             </div>
           </CardContent>
         </Card>
@@ -105,8 +105,8 @@ const Dashboard = () => {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>User Growth Trend</CardTitle>
-            <CardDescription>Active users over the last 7 months</CardDescription>
+            <CardTitle>Tendencia de Crecimiento de Usuarios</CardTitle>
+            <CardDescription>Usuarios activos en los últimos 7 meses</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -129,8 +129,8 @@ const Dashboard = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Top Engagement</CardTitle>
-            <CardDescription>Most-used tools and simulators</CardDescription>
+            <CardTitle>Mayor Interacción</CardTitle>
+            <CardDescription>Herramientas y simuladores más utilizados</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -160,8 +160,8 @@ const Dashboard = () => {
       <div className="grid gap-6 md:grid-cols-3">
         <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle>Transaction Categories</CardTitle>
-            <CardDescription>Aggregate user spending by category</CardDescription>
+            <CardTitle>Categorías de Transacciones</CardTitle>
+            <CardDescription>Gasto agregado de usuarios por categoría</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -179,46 +179,46 @@ const Dashboard = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Financial Health</CardTitle>
-            <CardDescription>Key user metrics</CardDescription>
+            <CardTitle>Salud Financiera</CardTitle>
+            <CardDescription>Métricas clave de usuarios</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">Avg. DTI Ratio</span>
+                  <span className="text-sm font-medium">Ratio DTI Promedio</span>
                 </div>
                 <Badge variant="secondary">42%</Badge>
               </div>
-              <p className="text-xs text-muted-foreground">Debt-to-Income: Healthy range</p>
+              <p className="text-xs text-muted-foreground">Deuda-Ingreso: Rango saludable</p>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <PiggyBank className="h-4 w-4 text-secondary" />
-                  <span className="text-sm font-medium">Avg. Savings Rate</span>
+                  <span className="text-sm font-medium">Tasa de Ahorro Promedio</span>
                 </div>
                 <Badge className="bg-secondary text-secondary-foreground">18%</Badge>
               </div>
-              <p className="text-xs text-muted-foreground">Monthly income saved</p>
+              <p className="text-xs text-muted-foreground">Ingreso mensual ahorrado</p>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-success" />
-                  <span className="text-sm font-medium">Recommendations</span>
+                  <span className="text-sm font-medium">Recomendaciones</span>
                 </div>
                 <Badge className="bg-success text-white">1,240</Badge>
               </div>
-              <p className="text-xs text-muted-foreground">Issued this month</p>
+              <p className="text-xs text-muted-foreground">Emitidas este mes</p>
             </div>
 
             <div className="pt-4 border-t border-border">
               <p className="text-xs text-muted-foreground">
-                Last data sync: <span className="text-foreground font-medium">12:34:56</span>
+                Última sincronización: <span className="text-foreground font-medium">12:34:56</span>
               </p>
             </div>
           </CardContent>
@@ -228,36 +228,36 @@ const Dashboard = () => {
       {/* System Alerts */}
       <Card>
         <CardHeader>
-          <CardTitle>System Notifications</CardTitle>
-          <CardDescription>Important alerts and system status</CardDescription>
+          <CardTitle>Notificaciones del Sistema</CardTitle>
+          <CardDescription>Alertas importantes y estado del sistema</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="flex items-center gap-3 p-3 rounded-lg bg-info/10 border border-info/20">
               <div className="h-2 w-2 rounded-full bg-info" />
               <div className="flex-1">
-                <p className="text-sm font-medium">5 content items pending approval</p>
-                <p className="text-xs text-muted-foreground">Review queue requires attention</p>
+                <p className="text-sm font-medium">5 elementos de contenido pendientes de aprobación</p>
+                <p className="text-xs text-muted-foreground">Cola de revisión requiere atención</p>
               </div>
-              <Badge variant="outline" className="border-info text-info">Action Required</Badge>
+              <Badge variant="outline" className="border-info text-info">Acción Requerida</Badge>
             </div>
 
             <div className="flex items-center gap-3 p-3 rounded-lg bg-success/10 border border-success/20">
               <div className="h-2 w-2 rounded-full bg-success" />
               <div className="flex-1">
-                <p className="text-sm font-medium">Database backup completed successfully</p>
-                <p className="text-xs text-muted-foreground">Last backup: 2 hours ago</p>
+                <p className="text-sm font-medium">Respaldo de base de datos completado exitosamente</p>
+                <p className="text-xs text-muted-foreground">Último respaldo: hace 2 horas</p>
               </div>
-              <Badge variant="outline" className="border-success text-success">Success</Badge>
+              <Badge variant="outline" className="border-success text-success">Éxito</Badge>
             </div>
 
             <div className="flex items-center gap-3 p-3 rounded-lg bg-warning/10 border border-warning/20">
               <div className="h-2 w-2 rounded-full bg-warning" />
               <div className="flex-1">
-                <p className="text-sm font-medium">Storage approaching 85% capacity</p>
-                <p className="text-xs text-muted-foreground">Consider archive old content</p>
+                <p className="text-sm font-medium">Almacenamiento cercano al 85% de capacidad</p>
+                <p className="text-xs text-muted-foreground">Considera archivar contenido antiguo</p>
               </div>
-              <Badge variant="outline" className="border-warning text-warning">Warning</Badge>
+              <Badge variant="outline" className="border-warning text-warning">Advertencia</Badge>
             </div>
           </div>
         </CardContent>

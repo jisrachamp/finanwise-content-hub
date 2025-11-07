@@ -20,10 +20,10 @@ const Login = () => {
     // Simulate authentication
     setTimeout(() => {
       if (email && password) {
-        toast.success("Login successful");
+        toast.success("Inicio de sesión exitoso");
         navigate("/dashboard");
       } else {
-        toast.error("Please enter valid credentials");
+        toast.error("Por favor ingresa credenciales válidas");
       }
       setIsLoading(false);
     }, 1000);
@@ -40,13 +40,13 @@ const Login = () => {
           </div>
           <CardTitle className="text-2xl font-semibold">FinanSmart MX</CardTitle>
           <CardDescription className="text-base">
-            CMS Access — Content Management System
+            Acceso CMS — Sistema de Gestión de Contenidos
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Correo Electrónico</Label>
               <Input
                 id="email"
                 type="email"
@@ -57,7 +57,7 @@ const Login = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Contraseña</Label>
               <Input
                 id="password"
                 type="password"
@@ -70,17 +70,17 @@ const Login = () => {
             <button
               type="button"
               className="text-sm text-primary hover:underline"
-              onClick={() => toast.info("Password recovery feature coming soon")}
+              onClick={() => toast.info("Recuperación de contraseña próximamente")}
             >
-              Forgot password?
+              ¿Olvidaste tu contraseña?
             </button>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
             </Button>
             <p className="text-xs text-center text-muted-foreground">
-              Last system update: January 2025 • Privacy Policy
+              Última actualización: Enero 2025 • Política de Privacidad
             </p>
           </CardFooter>
         </form>

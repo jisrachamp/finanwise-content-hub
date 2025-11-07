@@ -5,25 +5,25 @@ const Settings = () => {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold text-foreground">Settings</h1>
-        <p className="text-muted-foreground mt-1">Configure system preferences and security</p>
+        <h1 className="text-3xl font-semibold text-foreground">Configuración</h1>
+        <p className="text-muted-foreground mt-1">Configurar preferencias del sistema y seguridad</p>
       </div>
 
       <Tabs defaultValue="general" className="space-y-4">
         <TabsList>
           <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="security">Seguridad</TabsTrigger>
+          <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>General Settings</CardTitle>
-              <CardDescription>Platform configuration and preferences</CardDescription>
+              <CardTitle>Configuración General</CardTitle>
+              <CardDescription>Configuración y preferencias de la plataforma</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Settings configuration coming soon...</p>
+              <p className="text-muted-foreground">Configuración próximamente...</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -31,11 +31,11 @@ const Settings = () => {
         <TabsContent value="security" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Security Settings</CardTitle>
-              <CardDescription>Manage authentication and access controls</CardDescription>
+              <CardTitle>Configuración de Seguridad</CardTitle>
+              <CardDescription>Gestionar autenticación y controles de acceso</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Security settings coming soon...</p>
+              <p className="text-muted-foreground">Configuración de seguridad próximamente...</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -43,11 +43,11 @@ const Settings = () => {
         <TabsContent value="notifications" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
-              <CardDescription>Configure alerts and email notifications</CardDescription>
+              <CardTitle>Preferencias de Notificaciones</CardTitle>
+              <CardDescription>Configurar alertas y notificaciones por correo</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Notification settings coming soon...</p>
+              <p className="text-muted-foreground">Configuración de notificaciones próximamente...</p>
             </CardContent>
           </Card>
         </TabsContent>
