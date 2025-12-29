@@ -1,10 +1,13 @@
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { Plus, Search, Filter, Eye, Edit, Trash2, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
@@ -14,16 +17,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
 
-const contentItems = [
-  { id: 1, title: "Entendiendo las Tarjetas de Crédito en México", category: "Crédito", author: "María González", status: "Publicado", date: "2025-01-15" },
-  { id: 2, title: "CETES: Una Guía para Principiantes", category: "Inversión", author: "Carlos Ruiz", status: "Publicado", date: "2025-01-14" },
-  { id: 3, title: "Construyendo tu Fondo de Emergencia", category: "Ahorros", author: "Ana López", status: "En Revisión", date: "2025-01-13" },
-  { id: 4, title: "Cómo Calcular tu Ratio DTI", category: "Salud Financiera", author: "Juan Pérez", status: "Borrador", date: "2025-01-12" },
-  { id: 5, title: "Presupuesto Inteligente para Principiantes", category: "Presupuesto", author: "María González", status: "Publicado", date: "2025-01-11" },
-  { id: 6, title: "Introducción a los Préstamos Personales", category: "Crédito", author: "Carlos Ruiz", status: "En Revisión", date: "2025-01-10" },
-];
+import { toast } from "sonner";
+import { apiFetch } from "@/api/http";
+
+type ContentItem = {
+  _id?: string;          // típico mongo
+  id?: string | number;  // por si tu backend usa otro
+  title: string;
+  category: string;
+  author: string;
+  status: "Publicado" | "En Revisión" | "Borrador" | string;
+  date: string; // o updatedAt/createdAt; aquí lo mostramos tal cual
+};
 
 const statusColors: Record<string, string> = {
   "Publicado": "bg-success text-white",
@@ -31,20 +37,55 @@ const statusColors: Record<string, string> = {
   "Borrador": "bg-muted text-muted-foreground",
 };
 
+async function fetchContentList(): Promise<ContentItem[]> {
+  // 👇 cambia la ruta si tu backend usa otra
+  return apiFetch<ContentItem[]>("/api/content", { method: "GET" });
+}
+
 const Content = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const handleAction = (action: string, id: number) => {
+  const {
+    data: contentItems = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ["content"],
+    queryFn: fetchContentList,
+  });
+
+  const handleAction = (action: string, id: string | number) => {
     toast.success(`${action} content #${id}`);
   };
 
-  const filteredContent = contentItems.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.author.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || item.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredContent = useMemo(() => {
+    return contentItems.filter((item) => {
+      const q = searchQuery.toLowerCase();
+      const matchesSearch =
+        item.title.toLowerCase().includes(q) ||
+        item.author.toLowerCase().includes(q);
+
+      const matchesStatus =
+        statusFilter === "all" || item.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [contentItems, searchQuery, statusFilter]);
+
+  // Si falla, te aviso y te dejo botón de reintento
+  if (isError) {
+    // evita spamear toast en re-renders
+    // (solo dispara una vez cuando entró en error)
+    // Si prefieres, quítalo y maneja con UI.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    // @ts-ignore
+    if (!(window as any).__content_error_toast_shown) {
+      (window as any).__content_error_toast_shown = true;
+      toast.error("No se pudo cargar el contenido. Revisa tu API/BaseURL o el token.");
+    }
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -53,7 +94,7 @@ const Content = () => {
           <h1 className="text-3xl font-semibold text-foreground">Biblioteca de Contenido</h1>
           <p className="text-muted-foreground mt-1">Gestionar materiales educativos y artículos</p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => toast.info("Crear contenido: pendiente de implementar")}>
           <Plus className="h-4 w-4" />
           Nuevo Contenido
         </Button>
@@ -73,6 +114,7 @@ const Content = () => {
                 />
               </div>
             </div>
+
             <div className="flex gap-2 w-full sm:w-auto">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full sm:w-[180px]">
@@ -86,9 +128,14 @@ const Content = () => {
                   <SelectItem value="Borrador">Borrador</SelectItem>
                 </SelectContent>
               </Select>
+
+              <Button variant="outline" onClick={() => refetch()} disabled={isLoading}>
+                {isLoading ? "Cargando..." : "Recargar"}
+              </Button>
             </div>
           </div>
         </CardHeader>
+
         <CardContent>
           <div className="rounded-md border">
             <Table>
@@ -102,51 +149,69 @@ const Content = () => {
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
+
               <TableBody>
-                {filteredContent.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.title}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{item.category}</Badge>
-                    </TableCell>
-                    <TableCell>{item.author}</TableCell>
-                    <TableCell>
-                      <Badge className={statusColors[item.status]}>
-                        {item.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{item.date}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleAction("Ver", item.id)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            Ver
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleAction("Editar", item.id)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Editar
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            className="text-destructive"
-                            onClick={() => handleAction("Eliminar", item.id)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Eliminar
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                      Cargando contenidos...
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : filteredContent.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                      No hay resultados con esos filtros.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredContent.map((item, idx) => {
+                    const rowId = (item._id ?? item.id ?? idx) as string | number;
+                    const badgeClass = statusColors[item.status] ?? "bg-muted text-muted-foreground";
+
+                    return (
+                      <TableRow key={String(rowId)}>
+                        <TableCell className="font-medium">{item.title}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{item.category}</Badge>
+                        </TableCell>
+                        <TableCell>{item.author}</TableCell>
+                        <TableCell>
+                          <Badge className={badgeClass}>{item.status}</Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">{item.date}</TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => handleAction("Ver", rowId)}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                Ver
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleAction("Editar", rowId)}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => handleAction("Eliminar", rowId)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Eliminar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           </div>
