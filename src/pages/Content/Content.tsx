@@ -51,6 +51,7 @@ import {
   Trash2,
   MoreHorizontal,
   RefreshCw,
+  CheckCircle2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -95,8 +96,6 @@ function joinCsv(arr: string[] | undefined) {
 
 function isValidUrl(s: string) {
   try {
-    // Joi.string().uri() acepta muchas variantes; esto cubre la mayoría
-    // (si quieres ser más estricto, valida protocolo http/https).
     // eslint-disable-next-line no-new
     new URL(s);
     return true;
@@ -134,12 +133,6 @@ type UpsertState = {
 
 type FormErrors = Record<string, string>;
 
-const statusColors: Record<string, string> = {
-  Publicado: "bg-success text-white",
-  "En Revisión": "bg-warning text-white",
-  Borrador: "bg-muted text-muted-foreground",
-};
-
 function makeEmptyState(): UpsertState {
   return {
     titulo: "",
@@ -164,14 +157,11 @@ function makeEmptyState(): UpsertState {
       },
     ],
 
-    pasos: [
-      { titulo: "", descripcion: "", duracionMinutos: undefined },
-    ],
+    pasos: [{ titulo: "", descripcion: "", duracionMinutos: undefined }],
   };
 }
 
 function fromCapsule(c: Capsule): UpsertState {
-  // OJO: algunos campos pueden no existir en tu tipo Capsule; por eso uso fallback.
   return {
     _id: (c as any)._id ?? (c as any).id,
     titulo: (c as any).titulo ?? "",
@@ -199,46 +189,39 @@ function fromCapsule(c: Capsule): UpsertState {
           }))
         : makeEmptyState().preguntas,
 
-    pasos: Array.isArray((c as any).pasos) && (c as any).pasos.length
-      ? (c as any).pasos.map((p: any) => ({
-          titulo: p.titulo ?? "",
-          descripcion: p.descripcion ?? "",
-          duracionMinutos: p.duracionMinutos,
-        }))
-      : makeEmptyState().pasos,
+    pasos:
+      Array.isArray((c as any).pasos) && (c as any).pasos.length
+        ? (c as any).pasos.map((p: any) => ({
+            titulo: p.titulo ?? "",
+            descripcion: p.descripcion ?? "",
+            duracionMinutos: p.duracionMinutos,
+          }))
+        : makeEmptyState().pasos,
   };
 }
 
 function validateForm(s: UpsertState): FormErrors {
   const e: FormErrors = {};
 
-  // titulo required min 3 max 150
   const t = s.titulo.trim();
   if (!t) e.titulo = "El título es obligatorio.";
   else if (t.length < 3) e.titulo = "Mínimo 3 caracteres.";
   else if (t.length > 150) e.titulo = "Máximo 150 caracteres.";
 
-  // cuerpo allow '' optional => no error
-
-  // categoria optional max 80
   const cat = s.categoria.trim();
   if (cat && cat.length > 80) e.categoria = "Máximo 80 caracteres.";
 
-  // nivel enum
   if (!["básico", "intermedio", "avanzado"].includes(s.nivel)) {
     e.nivel = "Nivel inválido.";
   }
 
-  // url optional uri
   const u = s.url.trim();
   if (u && !isValidUrl(u)) e.url = "URL inválida (debe ser una URI válida).";
 
-  // tipo enum
   if (!["concepto", "faq", "capsula", "guia"].includes(s.tipo)) {
     e.tipo = "Tipo inválido.";
   }
 
-  // temas / etiquetas (array string max length)
   const temas = splitCsv(s.temasCsv);
   const etiquetas = splitCsv(s.etiquetasCsv);
 
@@ -248,7 +231,6 @@ function validateForm(s: UpsertState): FormErrors {
   const etiquetaLarga = etiquetas.find((x) => x.length > 40);
   if (etiquetaLarga) e.etiquetasCsv = "Cada etiqueta debe ser ≤ 40 caracteres.";
 
-  // fuentes optional: items { titulo min2 required, url uri required }
   if (s.fuentes?.length) {
     for (let i = 0; i < s.fuentes.length; i++) {
       const f = s.fuentes[i];
@@ -263,9 +245,7 @@ function validateForm(s: UpsertState): FormErrors {
     }
   }
 
-  // capsula => quiz REQUIRED
   if (s.tipo === "capsula") {
-    // intentosMax 1..10
     if (!Number.isInteger(s.intentosMax) || s.intentosMax < 1 || s.intentosMax > 10) {
       e.intentosMax = "Intentos máx debe ser entre 1 y 10.";
     }
@@ -291,20 +271,17 @@ function validateForm(s: UpsertState): FormErrors {
             const o = opciones[oIdx];
             const txt = (o?.texto ?? "").trim();
             if (!txt) {
-              e[`quiz.preguntas.${pIdx}.opciones.${oIdx}.texto`] =
-                "Texto de opción requerido.";
+              e[`quiz.preguntas.${pIdx}.opciones.${oIdx}.texto`] = "Texto de opción requerido.";
             }
             if (o?.correcta) correctas++;
           }
           if (correctas === 0) {
-            e[`quiz.preguntas.${pIdx}.correcta`] =
-              "Debe existir al menos una opción correcta.";
+            e[`quiz.preguntas.${pIdx}.correcta`] = "Debe existir al menos una opción correcta.";
           }
         }
       }
     }
   } else {
-    // tipo != capsula => quiz forbidden
     const hasQuizText = s.preguntas?.some(
       (p) => (p.enunciado ?? "").trim() || (p.opciones ?? []).some((o) => (o.texto ?? "").trim())
     );
@@ -313,7 +290,6 @@ function validateForm(s: UpsertState): FormErrors {
     }
   }
 
-  // guia => pasos REQUIRED
   if (s.tipo === "guia") {
     if (!s.pasos || s.pasos.length < 1) {
       e.pasos = "Los pasos son obligatorios para tipo guía (mínimo 1 paso).";
@@ -334,10 +310,7 @@ function validateForm(s: UpsertState): FormErrors {
       }
     }
   } else {
-    // tipo != guia => pasos forbidden
-    const hasAnyPaso = s.pasos?.some(
-      (p) => (p.titulo ?? "").trim() || (p.descripcion ?? "").trim()
-    );
+    const hasAnyPaso = s.pasos?.some((p) => (p.titulo ?? "").trim() || (p.descripcion ?? "").trim());
     if (hasAnyPaso) {
       e.pasos = "Los pasos solo se permiten si el tipo es 'guia'.";
     }
@@ -392,6 +365,12 @@ function toPayload(s: UpsertState): CapsuleUpsertPayload {
 
 /** =============== component =============== */
 
+type SuccessModalState = {
+  open: boolean;
+  title: string;
+  description?: string;
+};
+
 export default function Content() {
   const qc = useQueryClient();
 
@@ -411,6 +390,17 @@ export default function Content() {
 
   // delete confirm
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  // ✅ modal de éxito
+  const [successModal, setSuccessModal] = useState<SuccessModalState>({
+    open: false,
+    title: "",
+    description: "",
+  });
+
+  const showSuccess = (title: string, description?: string) => {
+    setSuccessModal({ open: true, title, description });
+  };
 
   const queryKey = useMemo(
     () => ["education.search", { text, page, limit, idFilter }],
@@ -452,10 +442,10 @@ export default function Content() {
   const createMut = useMutation({
     mutationFn: (payload: CapsuleUpsertPayload) => adminCreateContent(payload),
     onSuccess: async () => {
-      toast.success("Contenido creado");
       setOpen(false);
       await qc.invalidateQueries({ queryKey: ["education.search"] });
       refetch();
+      showSuccess("✅ Contenido creado", "La operación se completó correctamente.");
     },
     onError: (e: any) => toast.error(e?.message ?? "No se pudo crear"),
   });
@@ -464,10 +454,10 @@ export default function Content() {
     mutationFn: ({ id, payload }: { id: string; payload: CapsuleUpsertPayload }) =>
       adminUpdateContent(id, payload),
     onSuccess: async () => {
-      toast.success("Contenido actualizado");
       setOpen(false);
       await qc.invalidateQueries({ queryKey: ["education.search"] });
       refetch();
+      showSuccess("✅ Contenido actualizado", "Los cambios se guardaron correctamente.");
     },
     onError: (e: any) => toast.error(e?.message ?? "No se pudo actualizar"),
   });
@@ -475,10 +465,10 @@ export default function Content() {
   const deleteMut = useMutation({
     mutationFn: (id: string) => adminDeleteContent(id),
     onSuccess: async () => {
-      toast.success("Contenido eliminado");
       setDeleteId(null);
       await qc.invalidateQueries({ queryKey: ["education.search"] });
       refetch();
+      showSuccess("✅ Contenido eliminado", "El registro fue eliminado correctamente.");
     },
     onError: (e: any) => toast.error(e?.message ?? "No se pudo eliminar"),
   });
@@ -546,9 +536,7 @@ export default function Content() {
   const showGuia = form.tipo === "guia";
 
   const Err = ({ name }: { name: string }) =>
-    errors[name] ? (
-      <p className="text-xs text-destructive mt-1">{errors[name]}</p>
-    ) : null;
+    errors[name] ? <p className="text-xs text-destructive mt-1">{errors[name]}</p> : null;
 
   return (
     <div className="p-6 space-y-6">
@@ -672,11 +660,7 @@ export default function Content() {
               <Button
                 variant="outline"
                 onClick={() => setPage((p) => p + 1)}
-                disabled={
-                  Boolean(idFilter.trim()) ||
-                  isFetching ||
-                  (meta ? page >= meta.pages : true)
-                }
+                disabled={Boolean(idFilter.trim()) || isFetching || (meta ? page >= meta.pages : true)}
               >
                 Siguiente
               </Button>
@@ -771,6 +755,29 @@ export default function Content() {
         </CardContent>
       </Card>
 
+      {/* ✅ Modal de éxito (Create/Update/Delete) */}
+      <Dialog
+        open={successModal.open}
+        onOpenChange={(v) => setSuccessModal((s) => ({ ...s, open: v }))}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5" />
+              {successModal.title}
+            </DialogTitle>
+            {successModal.description ? (
+              <DialogDescription>{successModal.description}</DialogDescription>
+            ) : null}
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setSuccessModal((s) => ({ ...s, open: false }))}>
+              OK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* ===== Modal Create/Edit/View ===== */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl w-[95vw] p-0 overflow-hidden flex flex-col max-h-[90vh]">
@@ -778,7 +785,11 @@ export default function Content() {
           <div className="px-6 pt-6 pb-3 shrink-0 border-b">
             <DialogHeader>
               <DialogTitle>
-                {mode === "create" ? "Nuevo Contenido" : mode === "edit" ? "Editar Contenido" : "Ver Contenido"}
+                {mode === "create"
+                  ? "Nuevo Contenido"
+                  : mode === "edit"
+                  ? "Editar Contenido"
+                  : "Ver Contenido"}
               </DialogTitle>
               <DialogDescription>
                 {mode === "create"
@@ -1199,7 +1210,10 @@ export default function Content() {
                       onClick={() =>
                         setForm((s) => ({
                           ...s,
-                          pasos: [...(s.pasos ?? []), { titulo: "", descripcion: "", duracionMinutos: undefined }],
+                          pasos: [
+                            ...(s.pasos ?? []),
+                            { titulo: "", descripcion: "", duracionMinutos: undefined },
+                          ],
                         }))
                       }
                     >
