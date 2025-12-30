@@ -2,7 +2,7 @@ export type BackendUser = {
   _id: string;
   nombre: string;
   correo: string;
-  rol: "admin" | "usuario" | string;
+  rol: "administrador" | "usuario" | string;
   fechaRegistro?: string;
   tokenActualizacion?: string;
   preferencias?: {

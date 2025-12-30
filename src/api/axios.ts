@@ -8,6 +8,8 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const session = loadSession();
+  console.log("API REQUEST URL TOKEEEN: ");
+  console.log(session);
   if (session?.accessToken) {
     config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${session.accessToken}`;

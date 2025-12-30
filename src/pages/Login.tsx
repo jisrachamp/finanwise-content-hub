@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,15 +24,21 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const from =
-    (location.state as any)?.from || "/dashboard"; // a dónde regresar después del login
+  const from = useMemo(() => {
+    const raw = (location.state as any)?.from as string | undefined;
+    console.log("Login redirigiendo a from: ", raw);
+    if (!raw || typeof raw !== "string") return "/dashboard";
+    if (!raw.startsWith("/")) return "/dashboard";
+    if (raw === "/login" || raw === "/forbidden") return "/dashboard";
+    return raw;
+  }, [location.state]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await login({ correo: email, password }); // 👈 tu backend usa "correo"
+      await login({ correo: email, password }); // backend usa "correo"
       toast.success("Inicio de sesión exitoso");
       navigate(from, { replace: true });
     } catch (err: any) {
