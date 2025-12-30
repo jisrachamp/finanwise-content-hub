@@ -11,8 +11,12 @@ import Dashboard from "@/pages/Dashboard";
 import Content from "@/pages/Content/Content";
 import Analytics from "@/pages/Analytics";
 import Settings from "@/pages/Settings";
-import Users from "@/pages/Users";
+import Users from "@/pages/Users/Users";
 import NotFound from "@/pages/NotFound";
+import Questions from "@/pages/Questions";
+import Exams from "@/pages/Exams";
+
+
 
 export default function App() {
   return (
@@ -29,6 +33,8 @@ export default function App() {
         <Route element={<RequireAdmin />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/admin/questions" element={<Questions />} />
+            <Route path="/admin/exams" element={<Exams />} />
             <Route path="/content" element={<Content />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/settings" element={<Settings />} />

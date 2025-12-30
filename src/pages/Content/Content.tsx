@@ -64,11 +64,7 @@ import {
 
 import { toast } from "sonner";
 
-import type {
-  Capsule,
-  CapsuleUpsertPayload,
-  QuizQuestion,
-} from "@/api/Content/types";
+import type { Capsule, CapsuleUpsertPayload, QuizQuestion } from "@/api/Content/types";
 import {
   adminCreateContent,
   adminDeleteContent,
@@ -76,6 +72,8 @@ import {
   educationGetById,
   educationSearch,
 } from "@/api/Content/Content.api";
+
+import Paginator from "@/components/common/Paginator";
 
 /** =============== helpers =============== */
 
@@ -283,7 +281,8 @@ function validateForm(s: UpsertState): FormErrors {
     }
   } else {
     const hasQuizText = s.preguntas?.some(
-      (p) => (p.enunciado ?? "").trim() || (p.opciones ?? []).some((o) => (o.texto ?? "").trim())
+      (p) =>
+        (p.enunciado ?? "").trim() || (p.opciones ?? []).some((o) => (o.texto ?? "").trim())
     );
     if (hasQuizText) {
       e.quiz = "El quiz solo se permite si el tipo es 'capsula'.";
@@ -403,8 +402,8 @@ export default function Content() {
   };
 
   const queryKey = useMemo(
-    () => ["education.search", { text, page, limit, idFilter }],
-    [text, page, limit, idFilter]
+    () => ["education.search", { text, page, limit, idFilter, nivel, tipo }],
+    [text, page, limit, idFilter, nivel, tipo]
   );
 
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
@@ -418,7 +417,13 @@ export default function Content() {
           meta: { total: 1, page: 1, limit, pages: 1 },
         };
       }
-      return educationSearch({ text, page, limit });
+
+      // ✅ ideal: backend filtra por nivel/tipo para que meta sea coherente
+      const params: any = { text, page, limit };
+      if (nivel !== "all") params.nivel = nivel;
+      if (tipo !== "all") params.tipo = tipo;
+
+      return educationSearch(params);
     },
   });
 
@@ -429,15 +434,7 @@ export default function Content() {
   }, [isError]);
 
   const rows: Capsule[] = (data as any)?.data ?? [];
-  const meta = (data as any)?.meta;
-
-  const filteredRows = useMemo(() => {
-    return rows.filter((r: any) => {
-      const okNivel = nivel === "all" || (r.nivel ?? "") === nivel;
-      const okTipo = tipo === "all" || (r.tipo ?? "") === tipo;
-      return okNivel && okTipo;
-    });
-  }, [rows, nivel, tipo]);
+  const meta = (data as any)?.meta ?? { total: 0, page: 1, limit, pages: 1 };
 
   const createMut = useMutation({
     mutationFn: (payload: CapsuleUpsertPayload) => adminCreateContent(payload),
@@ -538,6 +535,8 @@ export default function Content() {
   const Err = ({ name }: { name: string }) =>
     errors[name] ? <p className="text-xs text-destructive mt-1">{errors[name]}</p> : null;
 
+  const paginatorDisabled = Boolean(idFilter.trim()) || isFetching;
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -589,7 +588,13 @@ export default function Content() {
                 className="sm:w-[220px]"
               />
 
-              <Select value={tipo} onValueChange={setTipo}>
+              <Select
+                value={tipo}
+                onValueChange={(v) => {
+                  setTipo(v);
+                  setPage(1);
+                }}
+              >
                 <SelectTrigger className="w-full sm:w-[170px]">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Tipo" />
@@ -603,7 +608,13 @@ export default function Content() {
                 </SelectContent>
               </Select>
 
-              <Select value={nivel} onValueChange={setNivel}>
+              <Select
+                value={nivel}
+                onValueChange={(v) => {
+                  setNivel(v);
+                  setPage(1);
+                }}
+              >
                 <SelectTrigger className="w-full sm:w-[170px]">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Nivel" />
@@ -635,36 +646,17 @@ export default function Content() {
             </div>
           </div>
 
-          {/* paginación */}
-          <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              {meta ? (
-                <>
-                  Total: <span className="font-medium text-foreground">{meta.total}</span> · Página{" "}
-                  <span className="font-medium text-foreground">{meta.page}</span> /{" "}
-                  <span className="font-medium text-foreground">{meta.pages}</span>
-                </>
-              ) : (
-                "—"
-              )}
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1 || Boolean(idFilter.trim()) || isFetching}
-              >
-                Anterior
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setPage((p) => p + 1)}
-                disabled={Boolean(idFilter.trim()) || isFetching || (meta ? page >= meta.pages : true)}
-              >
-                Siguiente
-              </Button>
-            </div>
+          {/* ✅ Paginación REAL */}
+          <div className="mt-4">
+            <Paginator
+              page={page}
+              pages={meta?.pages ?? 1}
+              total={meta?.total}
+              limit={limit}
+              disabled={paginatorDisabled}
+              onPageChange={(p) => setPage(p)}
+              siblingCount={1}
+            />
           </div>
         </CardHeader>
 
@@ -690,14 +682,14 @@ export default function Content() {
                       Cargando contenidos...
                     </TableCell>
                   </TableRow>
-                ) : filteredRows.length === 0 ? (
+                ) : rows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                       No hay resultados con esos filtros.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredRows.map((item: any) => {
+                  rows.map((item: any) => {
                     const rowId = item._id;
                     return (
                       <TableRow key={rowId}>
@@ -738,7 +730,10 @@ export default function Content() {
 
                               <DropdownMenuSeparator />
 
-                              <DropdownMenuItem className="text-destructive" onClick={() => setDeleteId(rowId)}>
+                              <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => setDeleteId(rowId)}
+                              >
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Eliminar
                               </DropdownMenuItem>
@@ -756,10 +751,7 @@ export default function Content() {
       </Card>
 
       {/* ✅ Modal de éxito (Create/Update/Delete) */}
-      <Dialog
-        open={successModal.open}
-        onOpenChange={(v) => setSuccessModal((s) => ({ ...s, open: v }))}
-      >
+      <Dialog open={successModal.open} onOpenChange={(v) => setSuccessModal((s) => ({ ...s, open: v }))}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -771,9 +763,7 @@ export default function Content() {
             ) : null}
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={() => setSuccessModal((s) => ({ ...s, open: false }))}>
-              OK
-            </Button>
+            <Button onClick={() => setSuccessModal((s) => ({ ...s, open: false }))}>OK</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -785,11 +775,7 @@ export default function Content() {
           <div className="px-6 pt-6 pb-3 shrink-0 border-b">
             <DialogHeader>
               <DialogTitle>
-                {mode === "create"
-                  ? "Nuevo Contenido"
-                  : mode === "edit"
-                  ? "Editar Contenido"
-                  : "Ver Contenido"}
+                {mode === "create" ? "Nuevo Contenido" : mode === "edit" ? "Editar Contenido" : "Ver Contenido"}
               </DialogTitle>
               <DialogDescription>
                 {mode === "create"
@@ -1008,9 +994,7 @@ export default function Content() {
                       type="number"
                       className="w-24"
                       value={form.intentosMax}
-                      onChange={(e) =>
-                        setForm((s) => ({ ...s, intentosMax: Number(e.target.value || 0) }))
-                      }
+                      onChange={(e) => setForm((s) => ({ ...s, intentosMax: Number(e.target.value || 0) }))}
                       disabled={disabled || !showCapsula}
                     />
                   </div>
@@ -1033,12 +1017,7 @@ export default function Content() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() =>
-                                setForm((s) => ({
-                                  ...s,
-                                  preguntas: s.preguntas.filter((_, i) => i !== pIdx),
-                                }))
-                              }
+                              onClick={() => setForm((s) => ({ ...s, preguntas: s.preguntas.filter((_, i) => i !== pIdx) }))}
                             >
                               Quitar
                             </Button>
@@ -1068,10 +1047,7 @@ export default function Content() {
                             onChange={(e) =>
                               setForm((s) => {
                                 const next = [...s.preguntas];
-                                next[pIdx] = {
-                                  ...next[pIdx],
-                                  explicacionCorrecta: e.target.value,
-                                };
+                                next[pIdx] = { ...next[pIdx], explicacionCorrecta: e.target.value };
                                 return { ...s, preguntas: next };
                               })
                             }
@@ -1238,10 +1214,7 @@ export default function Content() {
                             variant="outline"
                             size="sm"
                             onClick={() =>
-                              setForm((s) => ({
-                                ...s,
-                                pasos: (s.pasos ?? []).filter((_, idx) => idx !== i),
-                              }))
+                              setForm((s) => ({ ...s, pasos: (s.pasos ?? []).filter((_, idx) => idx !== i) }))
                             }
                           >
                             Quitar
@@ -1290,10 +1263,7 @@ export default function Content() {
                             setForm((s) => {
                               const next = [...(s.pasos ?? [])];
                               const raw = e.target.value;
-                              next[i] = {
-                                ...next[i],
-                                duracionMinutos: raw === "" ? undefined : Number(raw),
-                              };
+                              next[i] = { ...next[i], duracionMinutos: raw === "" ? undefined : Number(raw) };
                               return { ...s, pasos: next };
                             })
                           }
