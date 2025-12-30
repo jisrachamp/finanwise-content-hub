@@ -8,7 +8,7 @@ import Login from "@/pages/Login";
 import Forbidden from "@/pages/Forbidden";
 
 import Dashboard from "@/pages/Dashboard";
-import Content from "@/pages/Content";
+import Content from "@/pages/Content/Content";
 import Analytics from "@/pages/Analytics";
 import Settings from "@/pages/Settings";
 import Users from "@/pages/Users";
