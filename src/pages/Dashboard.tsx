@@ -34,6 +34,7 @@ const transactionData = [
 const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
 const Dashboard = () => {
+  console.table(Object.entries(localStorage).map(([key, value]) => ({ key, value })));
   return (
     <div className="p-6 space-y-6">
       {/* Header */}

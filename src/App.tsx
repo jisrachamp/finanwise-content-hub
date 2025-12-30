@@ -1,39 +1,44 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Content from "./pages/Content";
-import Users from "./pages/Users";
-import Analytics from "./pages/Analytics";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
-import { DashboardLayout } from "./components/DashboardLayout";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { RequireAuth } from "@/routes/RequireAuth";
+import { RequireAdmin } from "@/routes/RequireAdmin";
 
-const queryClient = new QueryClient();
+import { DashboardLayout } from "@/components/DashboardLayout";
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Login />} />
+import Login from "@/pages/Login";
+import Forbidden from "@/pages/Forbidden";
+
+import Dashboard from "@/pages/Dashboard";
+import Content from "@/pages/Content";
+import Analytics from "@/pages/Analytics";
+import Settings from "@/pages/Settings";
+import Users from "@/pages/Users";
+import NotFound from "@/pages/NotFound";
+
+export default function App() {
+  return (
+    <Routes>
+      {/* Públicas */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/forbidden" element={<Forbidden />} />
+
+      {/* Redirección raíz */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+      {/* Protegidas */}
+      <Route element={<RequireAuth />}>
+        <Route element={<RequireAdmin />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/content" element={<Content />} />
-            <Route path="/users" element={<Users />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/users" element={<Users />} />
           </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+        </Route>
+      </Route>
 
-export default App;
+      {/* 404 */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}

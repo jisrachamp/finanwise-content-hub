@@ -14,9 +14,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "@/auth/useAuth";
 
 export function TopNav() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
   const isDark = document.documentElement.classList.contains("dark");
 
   const toggleTheme = () => {
@@ -24,10 +27,16 @@ export function TopNav() {
     toast.success(isDark ? "Modo claro activado" : "Modo oscuro activado");
   };
 
-  const handleLogout = () => {
-    toast.success("Sesión cerrada exitosamente");
-    navigate("/");
+  const handleLogout = async () => {
+    await logout(); // ✅ borra localStorage + pega al endpoint (si se puede)
+    toast.success("Sesión cerrada");
+    navigate("/login", { replace: true });
   };
+
+  const initials =
+    user?.nombre?.trim()?.slice(0, 2)?.toUpperCase() ??
+    user?.correo?.trim()?.slice(0, 2)?.toUpperCase() ??
+    "AD";
 
   return (
     <header className="h-16 border-b border-border bg-card flex items-center justify-between px-4 gap-4">
@@ -85,21 +94,28 @@ export function TopNav() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary text-primary-foreground">AD</AvatarFallback>
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  {initials}
+                </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span>Usuario Admin</span>
-                <span className="text-xs font-normal text-muted-foreground">admin@finansmart.mx</span>
+                <span>{user?.nombre ?? "Usuario Admin"}</span>
+                <span className="text-xs font-normal text-muted-foreground">
+                  {user?.correo ?? "admin@finansmart.mx"}
+                </span>
               </div>
             </DropdownMenuLabel>
+
             <DropdownMenuSeparator />
             <DropdownMenuItem>Configuración de Perfil</DropdownMenuItem>
             <DropdownMenuItem>Preferencias</DropdownMenuItem>
             <DropdownMenuSeparator />
+
             <DropdownMenuItem onClick={handleLogout} className="text-destructive">
               <LogOut className="mr-2 h-4 w-4" />
               Cerrar Sesión

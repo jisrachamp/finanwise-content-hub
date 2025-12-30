@@ -1,32 +1,51 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { TrendingUp } from "lucide-react";
+import { useAuth } from "@/auth/useAuth";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const from = useMemo(() => {
+    const raw = (location.state as any)?.from as string | undefined;
+    console.log("Login redirigiendo a from: ", raw);
+    if (!raw || typeof raw !== "string") return "/dashboard";
+    if (!raw.startsWith("/")) return "/dashboard";
+    if (raw === "/login" || raw === "/forbidden") return "/dashboard";
+    return raw;
+  }, [location.state]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate authentication
-    setTimeout(() => {
-      if (email && password) {
-        toast.success("Inicio de sesión exitoso");
-        navigate("/dashboard");
-      } else {
-        toast.error("Por favor ingresa credenciales válidas");
-      }
+    try {
+      await login({ correo: email, password }); // backend usa "correo"
+      toast.success("Inicio de sesión exitoso");
+      navigate(from, { replace: true });
+    } catch (err: any) {
+      toast.error(err?.message ?? "No se pudo iniciar sesión");
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -43,6 +62,7 @@ const Login = () => {
             Acceso CMS — Sistema de Gestión de Contenidos
           </CardDescription>
         </CardHeader>
+
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -56,6 +76,7 @@ const Login = () => {
                 required
               />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
               <Input
@@ -67,6 +88,7 @@ const Login = () => {
                 required
               />
             </div>
+
             <button
               type="button"
               className="text-sm text-primary hover:underline"
@@ -75,6 +97,7 @@ const Login = () => {
               ¿Olvidaste tu contraseña?
             </button>
           </CardContent>
+
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
