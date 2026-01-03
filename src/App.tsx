@@ -9,7 +9,7 @@ import Forbidden from "@/pages/Forbidden";
 
 import Dashboard from "@/pages/Dashboard";
 import Content from "@/pages/Content/Content";
-import Analytics from "@/pages/Analytics";
+import Analisis from "@/pages/Analisis/Analisis";
 import Settings from "@/pages/Settings";
 import Users from "@/pages/Users/Users";
 import NotFound from "@/pages/NotFound";
@@ -36,7 +36,7 @@ export default function App() {
             <Route path="/admin/questions" element={<Questions />} />
             <Route path="/admin/exams" element={<Exams />} />
             <Route path="/content" element={<Content />} />
-            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/analisis" element={<Analisis />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/users" element={<Users />} />
           </Route>

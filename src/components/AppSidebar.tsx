@@ -20,7 +20,7 @@ const menuItems = [
   { title: "Preguntas", url: "/admin/questions", icon: FileText },
   { title: "Exámenes", url: "/admin/exams", icon: FileText },
   { title: "Usuarios", url: "/users", icon: Users },
-  { title: "Analíticas", url: "/analytics", icon: BarChart3 },
+  { title: "Analíticas", url: "/analisis", icon: BarChart3 },
   { title: "Configuración", url: "/settings", icon: Settings },
 ];
 
