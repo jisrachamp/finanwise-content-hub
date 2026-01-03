@@ -59,7 +59,10 @@ export type EducationListParams = {
   limit?: number;
 };
 
-// Payload para admin create/update: el backend acepta parcial o completo.
+// Payload admin create/update: parcial o completo
 export type CapsuleUpsertPayload = Partial<
-  Pick<Capsule, "titulo" | "cuerpo" | "nivel" | "tipo" | "temas" | "etiquetas" | "quiz" | "fuentes" | "pasos">
+  Pick<
+    Capsule,
+    "titulo" | "cuerpo" | "nivel" | "tipo" | "temas" | "etiquetas" | "quiz" | "fuentes" | "pasos"
+  >
 >;
