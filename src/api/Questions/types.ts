@@ -1,4 +1,23 @@
-export type QuestionAnswerOption = {
+// === QUESTIONS ===
+
+export type QuestionTipo = "conocimiento" | "percepcion";
+export type QuestionNivel = "basico" | "intermedio" | "avanzado";
+export type QuestionEstado = "activa" | "inactiva";
+
+/**
+ * IMPORTANTE:
+ * Tu BACKEND NO acepta "presupuesto" (según Joi).
+ * Si lo quieres usar de verdad, hay que agregarlo al backend también.
+ */
+export type QuestionTema =
+  | "ahorro"
+  | "inversion"
+  | "credito"
+  | "control-gastos"
+  | "presupuesto"
+  | "general";
+
+export type Answer = {
   inciso: "a" | "b" | "c" | "d";
   texto: string;
   correcta: boolean;
@@ -6,19 +25,42 @@ export type QuestionAnswerOption = {
 
 export type Question = {
   _id: string;
-  tipo: "conocimiento" | "percepcion";
-  tema: "ahorro" | "inversion" | "credito" | "control-gastos" | "general";
-  nivel: "basico" | "intermedio" | "avanzado";
-  dimension?: string;
+  tipo: QuestionTipo;
+  tema: QuestionTema;
+  nivel: QuestionNivel;
+  dimension?: string | null;
   pregunta: string;
-  respuestas: QuestionAnswerOption[];
-  estado: "activa" | "inactiva";
-  fechaCreacion: string;
+  respuestas: Answer[];
+  estado: QuestionEstado;
+  fechaCreacion?: string;
 };
 
-export type QuestionUpsertPayload = Omit<Question, "_id" | "fechaCreacion">;
+export type QuestionUpsertPayload = {
+  tipo: QuestionTipo;
+  tema: QuestionTema;
+  nivel: QuestionNivel;
+  dimension?: string | null;
+  pregunta: string;
+  respuestas: Answer[];
+  estado: QuestionEstado;
+};
 
-export type Paginated<T> = {
-  data: T[];
-  meta: { total: number; page: number; limit: number; pages: number };
+export const LABEL_TIPO: Record<QuestionTipo, string> = {
+  conocimiento: "conocimiento",
+  percepcion: "percepción",
+};
+
+export const LABEL_NIVEL: Record<QuestionNivel, string> = {
+  basico: "básico",
+  intermedio: "intermedio",
+  avanzado: "avanzado",
+};
+
+export const LABEL_TEMA: Record<QuestionTema, string> = {
+  ahorro: "ahorro",
+  inversion: "inversión",
+  credito: "crédito",
+  "control-gastos": "control de gastos",
+  presupuesto: "presupuesto",
+  general: "general",
 };

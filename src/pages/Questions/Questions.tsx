@@ -1,3 +1,4 @@
+// frontend/src/screens/Admin/Questions.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -7,12 +8,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription,
-} from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -21,11 +18,10 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-import type { Question, QuestionUpsertPayload } from "@/api/Questions/types";
+import type { Question, QuestionUpsertPayload, QuestionTema, QuestionNivel, QuestionTipo } from "@/api/Questions/types";
+import { LABEL_TEMA, LABEL_NIVEL, LABEL_TIPO } from "@/api/Questions/types";
 import {
   adminQuestionCreate,
   adminQuestionDelete,
@@ -35,6 +31,39 @@ import {
 } from "@/api/Questions/Questions.api";
 
 type Mode = "create" | "edit" | "view";
+
+/** ===== normalización FRONT (por si DB trae acentos/valores raros) ===== */
+function stripAccents(s: string) {
+  return String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+function normLower(s: string) {
+  return stripAccents(s).toLowerCase().trim();
+}
+
+function normalizeTipoFront(v: any): QuestionTipo {
+  const t = normLower(v);
+  if (t === "percepcion") return "percepcion";
+  if (t === "conocimiento") return "conocimiento";
+  return "conocimiento";
+}
+
+function normalizeNivelFront(v: any): QuestionNivel {
+  const n = normLower(v);
+  if (n === "basico") return "basico";
+  if (n === "intermedio") return "intermedio";
+  if (n === "avanzado") return "avanzado";
+  return "basico";
+}
+
+function normalizeTemaFront(v: any): QuestionTema {
+  const t = normLower(v);
+  if (t === "controlgastos" || t === "control_gastos" || t === "control gastos") return "control-gastos";
+  if (t === "ahorro") return "ahorro";
+  if (t === "inversion") return "inversion";
+  if (t === "credito") return "credito";
+  if (t === "presupuesto") return "presupuesto";
+  return "general";
+}
 
 function emptyQuestion(): QuestionUpsertPayload {
   return {
@@ -83,8 +112,7 @@ export default function Questions() {
 
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey,
-    queryFn: () =>
-      adminQuestionsSearch({ text, tipo, tema, nivel, estado, page, limit }),
+    queryFn: () => adminQuestionsSearch({ text, tipo, tema, nivel, estado, page, limit }),
   });
 
   useEffect(() => {
@@ -144,9 +172,9 @@ export default function Questions() {
       setMode("view");
       setEditId(id);
       setForm({
-        tipo: q.tipo,
-        tema: q.tema,
-        nivel: q.nivel,
+        tipo: normalizeTipoFront(q.tipo),
+        tema: normalizeTemaFront(q.tema),
+        nivel: normalizeNivelFront(q.nivel),
         dimension: q.dimension ?? "",
         pregunta: q.pregunta,
         respuestas: q.respuestas,
@@ -164,9 +192,9 @@ export default function Questions() {
       setMode("edit");
       setEditId(id);
       setForm({
-        tipo: q.tipo,
-        tema: q.tema,
-        nivel: q.nivel,
+        tipo: normalizeTipoFront(q.tipo),
+        tema: normalizeTemaFront(q.tema),
+        nivel: normalizeNivelFront(q.nivel),
         dimension: q.dimension ?? "",
         pregunta: q.pregunta,
         respuestas: q.respuestas,
@@ -181,11 +209,13 @@ export default function Questions() {
   const disabled = mode === "view" || createMut.isPending || updateMut.isPending;
 
   const submit = () => {
-    // validación mínima (no meter muro)
     const p = (form.pregunta ?? "").trim();
     if (p.length < 5) return toast.error("La pregunta debe tener al menos 5 caracteres.");
     if (!form.respuestas || form.respuestas.length < 2) return toast.error("Mínimo 2 respuestas.");
-    if (!form.respuestas.some((r) => r.correcta)) return toast.error("Debe existir al menos 1 correcta.");
+    if (form.tipo === "conocimiento" && !form.respuestas.some((r) => r.correcta))
+      return toast.error("Debe existir al menos 1 correcta.");
+    if (form.tipo === "percepcion" && form.respuestas.some((r) => r.correcta))
+      return toast.error("En percepción no debe haber correctas.");
 
     if (mode === "create") return createMut.mutate(form);
     if (mode === "edit") {
@@ -251,6 +281,7 @@ export default function Questions() {
                   <SelectItem value="inversion">inversión</SelectItem>
                   <SelectItem value="credito">crédito</SelectItem>
                   <SelectItem value="control-gastos">control-gastos</SelectItem>
+                  <SelectItem value="presupuesto">presupuesto</SelectItem>
                   <SelectItem value="general">general</SelectItem>
                 </SelectContent>
               </Select>
@@ -352,17 +383,22 @@ export default function Questions() {
                 ) : (
                   rows.map((q: Question) => (
                     <TableRow key={q._id}>
-                      <TableCell className="font-medium max-w-[520px] truncate">
-                        {q.pregunta}
-                      </TableCell>
-                      <TableCell><Badge variant="outline">{q.tipo}</Badge></TableCell>
-                      <TableCell><Badge variant="outline">{q.tema}</Badge></TableCell>
-                      <TableCell><Badge variant="outline">{q.nivel}</Badge></TableCell>
+                      <TableCell className="font-medium max-w-[520px] truncate">{q.pregunta}</TableCell>
+
                       <TableCell>
-                        <Badge variant={q.estado === "activa" ? "default" : "secondary"}>
-                          {q.estado}
-                        </Badge>
+                        <Badge variant="outline">{LABEL_TIPO[normalizeTipoFront(q.tipo)]}</Badge>
                       </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{LABEL_TEMA[normalizeTemaFront(q.tema)]}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{LABEL_NIVEL[normalizeNivelFront(q.nivel)]}</Badge>
+                      </TableCell>
+
+                      <TableCell>
+                        <Badge variant={q.estado === "activa" ? "default" : "secondary"}>{q.estado}</Badge>
+                      </TableCell>
+
                       <TableCell className="text-muted-foreground">
                         {q.fechaCreacion ? new Date(q.fechaCreacion).toLocaleString() : "—"}
                       </TableCell>
@@ -428,6 +464,7 @@ export default function Questions() {
                 <SelectItem value="inversion">inversión</SelectItem>
                 <SelectItem value="credito">crédito</SelectItem>
                 <SelectItem value="control-gastos">control-gastos</SelectItem>
+                <SelectItem value="presupuesto">presupuesto</SelectItem>
                 <SelectItem value="general">general</SelectItem>
               </SelectContent>
             </Select>
@@ -508,7 +545,7 @@ export default function Questions() {
                         return { ...s, respuestas: next };
                       })
                     }
-                    disabled={disabled}
+                    disabled={disabled || form.tipo === "percepcion"}
                   >
                     <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
