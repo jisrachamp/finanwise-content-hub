@@ -32,7 +32,6 @@ export default function App() {
       <Route element={<RequireAuth />}>
         <Route element={<RequireAdmin />}>
           <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin/questions" element={<Questions />} />
             <Route path="/admin/exams" element={<Exams />} />
             <Route path="/content" element={<Content />} />
