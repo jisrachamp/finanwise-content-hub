@@ -26,16 +26,17 @@ export default function App() {
       <Route path="/forbidden" element={<Forbidden />} />
 
       {/* Redirección raíz */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<Navigate to="/analisis" replace />} />
 
       {/* Protegidas */}
       <Route element={<RequireAuth />}>
         <Route element={<RequireAdmin />}>
           <Route element={<DashboardLayout />}>
+            <Route path="/analisis" element={<Analisis />} />
+
             <Route path="/admin/questions" element={<Questions />} />
             <Route path="/admin/exams" element={<Exams />} />
             <Route path="/content" element={<Content />} />
-            <Route path="/analisis" element={<Analisis />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/users" element={<Users />} />
           </Route>
