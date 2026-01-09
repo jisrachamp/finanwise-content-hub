@@ -27,9 +27,9 @@ const Login = () => {
   const from = useMemo(() => {
     const raw = (location.state as any)?.from as string | undefined;
     console.log("Login redirigiendo a from: ", raw);
-    if (!raw || typeof raw !== "string") return "/dashboard";
-    if (!raw.startsWith("/")) return "/dashboard";
-    if (raw === "/login" || raw === "/forbidden") return "/dashboard";
+    if (!raw || typeof raw !== "string") return "/analisis";
+    if (!raw.startsWith("/")) return "/analisis";
+    if (raw === "/login" || raw === "/forbidden") return "/analisis";
     return raw;
   }, [location.state]);
 
